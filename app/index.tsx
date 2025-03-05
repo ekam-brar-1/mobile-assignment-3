@@ -1,12 +1,11 @@
 import { Link } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
+import Assignment3 from "./assignment3";
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Link href="/assignment3" style={styles.link}>
-        <Text style={styles.linkText}>Lab 3</Text>
-      </Link>
+      <Assignment3 />
     </View>
   );
 }
