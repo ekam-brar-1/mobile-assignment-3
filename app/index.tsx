@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 export default function App() {
   return (
     <View style={styles.container}>
-      <Link href="/lab3" style={styles.link}>
+      <Link href="/assignment3" style={styles.link}>
         <Text style={styles.linkText}>Lab 3</Text>
       </Link>
     </View>
