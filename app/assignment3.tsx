@@ -1,16 +1,52 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { Text, TextInput, View } from "react-native";
-import { StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Text,
+  TextInput,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+} from "react-native";
+
 export default function Assignment3() {
-  const [month, setMonth] = useState(1);
-  const [day, setDay] = useState(1);
+  const [month, setMonth] = useState(0);
+  const [day, setDay] = useState(0);
   const [fact, setFact] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("Select Month");
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
   useEffect(() => {
     if (day > 0 && day < 32 && month > 0 && month < 13) {
       fetchFact();
     }
   }, [month, day]);
+
+  const toggleDropdown = () => {
+    setIsVisible(!isVisible);
+  };
+
+  const selectMonth = (monthName: string) => {
+    setSelectedMonth(monthName);
+    const monthIndex = months.indexOf(monthName) + 1;
+    setMonth(monthIndex);
+    setIsVisible(false);
+  };
+
   const fetchFact = async () => {
     const response = await fetch(`http://numbersapi.com/${month}/${day}/date`, {
       method: "GET",
@@ -22,42 +58,83 @@ export default function Assignment3() {
     const data = await response.text();
     setFact(data);
   };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Enter a valid Date: </Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Month"
-        keyboardType="numeric"
-        onChangeText={(text) => setMonth(parseInt(text))}
-      />
+      <Text style={styles.factText}>{fact}</Text>
+
+      <TouchableOpacity style={styles.input} onPress={toggleDropdown}>
+        <Text>{selectedMonth}</Text>
+      </TouchableOpacity>
+
       <TextInput
         style={styles.input}
         placeholder="Day"
         keyboardType="numeric"
-        onChangeText={(text) => setDay(parseInt(text))}
+        value={day > 0 ? day.toString() : ""}
+        onChangeText={(text) => {
+          const dayValue = text ? parseInt(text) : 0;
+          setDay(dayValue);
+        }}
       />
-      <Text style={styles.text}>{fact}</Text>
+
+      <Modal transparent={true} visible={isVisible} animationType="fade">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsVisible(false)}
+        >
+          <View style={styles.dropdown}>
+            <FlatList
+              data={months}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.item}
+                  onPress={() => selectMonth(item)}
+                >
+                  <Text>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
+    padding: 20,
+    backgroundColor: "white",
   },
-
-  text: {
-    fontSize: 20,
-    marginBottom: 10,
+  factText: {
+    marginBottom: 20,
   },
   input: {
-    height: 40,
-    width: 200,
-    borderColor: "gray",
     borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
     marginBottom: 10,
+    backgroundColor: "white",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dropdown: {
+    width: "80%",
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    maxHeight: 300,
+  },
+  item: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
 });
